@@ -1,0 +1,11 @@
+section text
+func main
+mov r1, 0
+alloca gstr int 10
+
+end func
+
+end section
+section data
+
+end section

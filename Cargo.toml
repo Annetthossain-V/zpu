@@ -1,0 +1,11 @@
+workspace = { members = [ "assembler", "compiler", "instruction_decoder","stdlib"] }
+[package]
+name = "zpu"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+stdlib = { path = "./stdlib" }
+instruction_decoder = { path = "./instruction_decoder" }
