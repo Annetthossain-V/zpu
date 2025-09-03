@@ -26,7 +26,7 @@ impl ZsmTokens {
                 "mov" => self.tokens.push(Token::Key(Keys::Mov)),
                 "alloc" => self.tokens.push(Token::Key(Keys::Alloc)),
                 "lptr" => self.tokens.push(Token::Key(Keys::Lptr)),
-                "sptr" => self.tokens.push(Tokens::Key(Keys::Sptr)),
+                "sptr" => self.tokens.push(Token::Key(Keys::Sptr)),
 
                 _ => self.tokens.push(Token::Value(self.split_word[i].clone())),
             }

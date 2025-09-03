@@ -1,3 +1,3 @@
 
 pub mod opcode;
-pub mod zstring;
+pub mod ztype;

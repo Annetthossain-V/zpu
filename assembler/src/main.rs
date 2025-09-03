@@ -25,20 +25,23 @@ fn main() -> Result<()> {
     let lexed_tokens: Arc<Mutex<Vec<ZsmTokens>>> = Arc::new(Mutex::new(Vec::new()));
 
     multi_file_reader(files.len(), files.clone(), files_data.clone())?;
-    multi_lexer(lexed_tokens.clone(), files_data.clone(), files.len())?;
-    
+    multi_lexer(lexed_tokens.clone(), files_data.clone(), files.len())?; 
 
     
     Ok(())
 }
 
+fn single_file_reader(file_name: &str) -> Result<Vec<u8>> {
+    let mut file = std::fs::File::open(file_name)?;
+    let mut buffer: Vec<u8> = Vec::new();
+    file.read_to_end(&mut buffer)?;
+    Ok(buffer)
+}
+
 fn multi_file_reader(files_count: usize, files: Arc<Vec<String>>, files_data: Arc<Mutex<Vec<Vec<u8>>>>) -> Result<()> {
     if files_count == 1 {
-        let mut file = std::fs::File::open(&files[0])?;
-        let mut buffer: Vec<u8> = Vec::new();
-        file.read_to_end(&mut buffer)?;
-        files_data.lock().unwrap().push(buffer);
-
+        let buf: Vec<u8> = single_file_reader(&files[0])?;
+        files_data.lock().unwrap().push(buf);
         return Ok(());
     }
 
@@ -51,10 +54,11 @@ fn multi_file_reader(files_count: usize, files: Arc<Vec<String>>, files_data: Ar
         // --- First Thread ---
         s.spawn(move || {
             for i in 0..first_half_end {
-                let mut file = std::fs::File::open(&files_clone[i]).unwrap();
-                let mut buffer = Vec::new();
-                file.read_to_end(&mut buffer).unwrap();
-                files_data_clone.lock().unwrap().push(buffer);
+                let buffer = single_file_reader(&files_clone[i]);
+                match buffer {
+                    Ok(val) => files_data_clone.lock().unwrap().push(val),
+                    Err(e) => eprintln!("Error Reading File {}, Error {}", &files_clone[i], e),
+                }
             }
         });
 
@@ -64,10 +68,11 @@ fn multi_file_reader(files_count: usize, files: Arc<Vec<String>>, files_data: Ar
 
         s.spawn(move || {
             for i in first_half_end..files_count {
-                let mut file = std::fs::File::open(&files_clone2[i]).unwrap();
-                let mut buffer = Vec::new();
-                file.read_to_end(&mut buffer).unwrap();
-                files_data_clone2.lock().unwrap().push(buffer);
+                let buffer = single_file_reader(&files_clone2[i]);
+                match buffer {
+                    Ok(val) => files_data_clone2.lock().unwrap().push(val),
+                    Err(e) => eprintln!("Error Reading File {}, Error {}", &files_clone2[i], e),
+                }
             }
         });
     });
@@ -76,13 +81,18 @@ fn multi_file_reader(files_count: usize, files: Arc<Vec<String>>, files_data: Ar
     Ok(())
 }
 
+fn single_lexer(data: Vec<u8>) -> ZsmTokens {
+    let item: String = String::from_utf8(data).unwrap();
+    let mut lexer_token = ZsmTokens::new();
+    lexer_token.split_word(&item);
+    lexer_token.tokenize();
+    lexer_token
+}
+
 fn multi_lexer(lexer_tokens: Arc<Mutex<Vec<ZsmTokens>>>, files_data: Arc<Mutex<Vec<Vec<u8>>>>, files_len: usize) -> Result<()> {
     if files_len == 1 {
-        let item: String = String::from_utf8(files_data.lock().unwrap()[0].clone()).unwrap();
-        let mut lexer_token = ZsmTokens::new();
-        lexer_token.split_word(&item);
-        lexer_token.tokenize();
-        lexer_tokens.lock().unwrap().push(lexer_token);
+        let token = single_lexer(files_data.lock().unwrap()[0].clone());
+        lexer_tokens.lock().unwrap().push(token);
         return Ok(());
     }
 
@@ -95,11 +105,8 @@ fn multi_lexer(lexer_tokens: Arc<Mutex<Vec<ZsmTokens>>>, files_data: Arc<Mutex<V
         // --- First Thread ---
         s.spawn(move || {
             for i in 0..first_half_end {
-                let item: String = String::from_utf8(files_data_clone.lock().unwrap()[i].clone()).unwrap();
-                let mut lexer_token: ZsmTokens = ZsmTokens::new();
-                lexer_token.split_word(&item);
-                lexer_token.tokenize();
-                lexer_tokens_clone.lock().unwrap().push(lexer_token);
+                let token = single_lexer(files_data_clone.lock().unwrap()[i].clone());
+                lexer_tokens_clone.lock().unwrap().push(token);
             }
         });
 
@@ -109,14 +116,10 @@ fn multi_lexer(lexer_tokens: Arc<Mutex<Vec<ZsmTokens>>>, files_data: Arc<Mutex<V
 
         s.spawn(move || {
             for i in first_half_end..files_len {
-                let item: String = String::from_utf8(files_data_clone2.lock().unwrap()[i].clone()).unwrap();
-                let mut lexer_token: ZsmTokens = ZsmTokens::new();
-                lexer_token.split_word(&item);
-                lexer_token.tokenize();
-                lexer_tokens_clone2.lock().unwrap().push(lexer_token);
+                let token = single_lexer(files_data_clone2.lock().unwrap()[i].clone());
+                lexer_tokens_clone2.lock().unwrap().push(token);
             }
         });
-
     });
 
     Ok(())
