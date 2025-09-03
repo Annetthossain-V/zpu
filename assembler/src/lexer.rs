@@ -24,7 +24,7 @@ impl ZsmTokens {
                 "func" => self.tokens.push(Token::Key(Keys::Func)),
                 "end" => self.tokens.push(Token::Key(Keys::End)),
                 "mov" => self.tokens.push(Token::Key(Keys::Mov)),
-                "alloca" => self.tokens.push(Token::Key(Keys::Alloca)),
+                "alloc" => self.tokens.push(Token::Key(Keys::Alloc)),
                 "lptr" => self.tokens.push(Token::Key(Keys::Lptr)),
                 "sptr" => self.tokens.push(Tokens::Key(Keys::Sptr)),
 
@@ -52,7 +52,8 @@ enum Keys {
     Func,
     Mov,
     End,
-    Alloca,
+    Alloc,
+    Dealloc,
     Lptr,
     Sptr,
 }
