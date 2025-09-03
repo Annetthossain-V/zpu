@@ -1,5 +1,7 @@
 #![allow(unused)]
 use std::io::Result;
+use std::ops::{Index, IndexMut};
+
 
 enum ZTypeList {
     ZStr, // utf-16 
