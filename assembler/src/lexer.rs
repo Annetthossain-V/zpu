@@ -25,6 +25,8 @@ impl ZsmTokens {
                 "end" => self.tokens.push(Token::Key(Keys::End)),
                 "mov" => self.tokens.push(Token::Key(Keys::Mov)),
                 "alloca" => self.tokens.push(Token::Key(Keys::Alloca)),
+                "lptr" => self.tokens.push(Token::Key(Keys::Lptr)),
+                "sptr" => self.tokens.push(Tokens::Key(Keys::Sptr)),
 
                 _ => self.tokens.push(Token::Value(self.split_word[i].clone())),
             }
@@ -51,5 +53,7 @@ enum Keys {
     Mov,
     End,
     Alloca,
+    Lptr,
+    Sptr,
 }
 
