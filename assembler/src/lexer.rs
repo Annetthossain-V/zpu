@@ -1,7 +1,8 @@
+#![allow(unused)]
 
 pub struct ZsmTokens {
-    split_word: Vec<String>,
-    tokens: Vec<Token<Keys, String>>,
+    pub split_word: Vec<String>,
+    pub tokens: Vec<Token<Keys, String>>,
 }
 
 impl ZsmTokens {
@@ -13,8 +14,35 @@ impl ZsmTokens {
     }
 
     pub fn split_word(&mut self, item: &str) {
-        let tokenized = word_split(item);
-        self.split_word = tokenized;
+        let delims = &[' ', ',', '$', ':', '\n']; 
+        let mut current = String::new();
+        let mut in_quotes = false;
+
+        self.split_word.clear();
+        self.tokens.clear();
+
+        for c in item.chars() {
+            match c {
+                '"' => {
+                    in_quotes = !in_quotes;
+                    current.push(c);
+                }
+                d if delims.contains(&d) && !in_quotes => {
+                    if !current.is_empty() {
+                        self.split_word.push(current.trim().to_string());
+                        current.clear();
+                    }
+                    if d != ' ' && d != '\n' {
+                        self.split_word.push(d.to_string());
+                    }
+                }
+                _ => current.push(c),
+            }
+        }
+
+        if !current.is_empty() {
+            self.split_word.push(current.trim().to_string());
+        }
     }
 
     pub fn tokenize(&mut self) {
@@ -34,20 +62,12 @@ impl ZsmTokens {
     }
 }
 
-fn word_split(item: &str) -> Vec<String> {
-    let delims = &[' ', ',', ':', '\n'];
-    item.split(delims)
-        .filter(|s| !s.is_empty())
-        .map(|s| s.to_string())
-        .collect()
-}
-
-enum Token<T, U> {
+pub enum Token<T, U> {
     Key(T),
     Value(U),
 }
 
-enum Keys {
+pub enum Keys {
     Section,
     Func,
     Mov,

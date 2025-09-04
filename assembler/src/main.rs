@@ -27,7 +27,7 @@ fn main() -> Result<()> {
     multi_file_reader(files.len(), files.clone(), files_data.clone())?;
     multi_lexer(lexed_tokens.clone(), files_data.clone(), files.len())?; 
 
-    
+    println!("{:#?}", lexed_tokens.lock().unwrap()[0].split_word);
     Ok(())
 }
 
