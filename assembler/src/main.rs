@@ -7,6 +7,8 @@ use std::io::Read;
 
 mod flag;
 mod lexer;
+mod write_file;
+
 #[allow(unused)]
 use flag::{ 
     Flags,

@@ -1,4 +1,4 @@
-workspace = { members = [ "assembler", "compiler", "instruction_decoder","stdlib"] }
+workspace = { members = [ "assembler", "compiler", "stdlib"] }
 [package]
 name = "zpu"
 version = "0.1.0"
