@@ -2,8 +2,7 @@
 
 // global type specifier
 
-const OPCODE_START: u8 = 1;
-const ARR_START: u8 = 2;
+const KEYWORD_FUNC: u8 = 3;
 
 // opcodes
 
