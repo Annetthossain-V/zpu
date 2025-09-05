@@ -50,7 +50,7 @@ impl ZsmTokens {
             match self.split_word[i].as_str() {
                 "section" => self.tokens.push(Token::Key(Keys::Section)),
                 "func" => self.tokens.push(Token::Key(Keys::Func)),
-                "end" => self.tokens.push(Token::Key(Keys::End)),
+                // "end" => self.tokens.push(Token::Key(Keys::End)),
                 "mov" => self.tokens.push(Token::Key(Keys::Mov)),
                 "alloc" => self.tokens.push(Token::Key(Keys::Alloc)),
                 "dealloc" => self.tokens.push(Token::Key(Keys::Alloc)),
@@ -79,6 +79,7 @@ pub enum Token<T, U> {
     Value(U),
 }
 
+#[derive(PartialEq, Clone, Copy)]
 pub enum Keys {
     Section,
     Func,

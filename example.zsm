@@ -5,7 +5,7 @@ alloca gstr int 10
 
 end func
 
-end section
+section end
 section data
 
-end section
+section end
