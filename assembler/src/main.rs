@@ -1,21 +1,22 @@
+#![allow(unused)]
 
-use std::io::Result;
-use std::sync::{Mutex, Arc};
-use std::thread;
 use std::io::Read;
-
+use std::io::Result;
+use std::sync::{Arc, Mutex};
+use std::thread;
 
 mod flag;
-mod lexer;
+pub mod lexer;
+mod parser;
 mod write_file;
 
 #[allow(unused)]
-use flag::{ 
-    Flags,
-    Options
-};
+use flag::{Flags, Options};
 
 use lexer::ZsmTokens;
+use write_file::multi_file_write;
+
+use parser::multi_cltbts;
 
 fn main() -> Result<()> {
     let mut flags: Flags = Flags::new();
@@ -27,9 +28,10 @@ fn main() -> Result<()> {
     let lexed_tokens: Arc<Mutex<Vec<ZsmTokens>>> = Arc::new(Mutex::new(Vec::new()));
 
     multi_file_reader(files.len(), files.clone(), files_data.clone())?;
-    multi_lexer(lexed_tokens.clone(), files_data.clone(), files.len())?; 
+    multi_lexer(lexed_tokens.clone(), files_data.clone(), files.len())?;
 
-    println!("{:#?}", lexed_tokens.lock().unwrap()[0].split_word);
+    let bytecode = multi_cltbts(lexed_tokens.clone())?;
+    multi_file_write(bytecode, files.clone())?;
     Ok(())
 }
 
@@ -40,7 +42,11 @@ fn single_file_reader(file_name: &str) -> Result<Vec<u8>> {
     Ok(buffer)
 }
 
-fn multi_file_reader(files_count: usize, files: Arc<Vec<String>>, files_data: Arc<Mutex<Vec<Vec<u8>>>>) -> Result<()> {
+fn multi_file_reader(
+    files_count: usize,
+    files: Arc<Vec<String>>,
+    files_data: Arc<Mutex<Vec<Vec<u8>>>>,
+) -> Result<()> {
     if files_count == 1 {
         let buf: Vec<u8> = single_file_reader(&files[0])?;
         files_data.lock().unwrap().push(buf);
@@ -78,7 +84,6 @@ fn multi_file_reader(files_count: usize, files: Arc<Vec<String>>, files_data: Ar
             }
         });
     });
-    
 
     Ok(())
 }
@@ -91,7 +96,11 @@ fn single_lexer(data: Vec<u8>) -> ZsmTokens {
     lexer_token
 }
 
-fn multi_lexer(lexer_tokens: Arc<Mutex<Vec<ZsmTokens>>>, files_data: Arc<Mutex<Vec<Vec<u8>>>>, files_len: usize) -> Result<()> {
+fn multi_lexer(
+    lexer_tokens: Arc<Mutex<Vec<ZsmTokens>>>,
+    files_data: Arc<Mutex<Vec<Vec<u8>>>>,
+    files_len: usize,
+) -> Result<()> {
     if files_len == 1 {
         let token = single_lexer(files_data.lock().unwrap()[0].clone());
         lexer_tokens.lock().unwrap().push(token);

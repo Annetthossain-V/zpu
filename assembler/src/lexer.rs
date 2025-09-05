@@ -14,7 +14,7 @@ impl ZsmTokens {
     }
 
     pub fn split_word(&mut self, item: &str) {
-        let delims = &[' ', ',', '$', ':', '\n', '=', '*', '&']; 
+        let delims = &[' ', ',', '$', ':', '\n', '=', '*', '&'];
         let mut current = String::new();
         let mut in_quotes = false;
 
@@ -46,7 +46,7 @@ impl ZsmTokens {
     }
 
     pub fn tokenize(&mut self) {
-        for i in 0..self.split_word.len() { 
+        for i in 0..self.split_word.len() {
             match self.split_word[i].as_str() {
                 "section" => self.tokens.push(Token::Key(Keys::Section)),
                 "func" => self.tokens.push(Token::Key(Keys::Func)),
@@ -100,4 +100,3 @@ pub enum Keys {
     Ptr,
     UPtr,
 }
-

@@ -1,6 +1,5 @@
-
 use std::env::args;
-use std::io::{Error, Result, ErrorKind};
+use std::io::{Error, ErrorKind, Result};
 use std::path::Path;
 
 #[allow(unused)]
@@ -36,8 +35,14 @@ impl Flags {
         for arg in args {
             if (arg.chars().nth(0).unwrap() == '-') {
                 match arg.as_str() {
-                    "-h" | "--help" => { self.options.push(Options::Help); self.info = true; },
-                    "-v" | "--version" => { self.options.push(Options::Version); self.info = true; },
+                    "-h" | "--help" => {
+                        self.options.push(Options::Help);
+                        self.info = true;
+                    }
+                    "-v" | "--version" => {
+                        self.options.push(Options::Version);
+                        self.info = true;
+                    }
                     _ => panic!("Unknown Option {}", arg),
                 }
             } else {
@@ -46,7 +51,10 @@ impl Flags {
                     return Err(Error::new(ErrorKind::NotFound, "File not found"));
                 }
                 if (file.extension().unwrap() != "zsm") {
-                    return Err(Error::new(ErrorKind::InvalidInput, "Invalid file extension"));
+                    return Err(Error::new(
+                        ErrorKind::InvalidInput,
+                        "Invalid file extension",
+                    ));
                 }
                 self.files.push(arg);
             }
@@ -71,13 +79,10 @@ impl Flags {
             std::process::exit(0);
         }
     }
-
 }
 
-
 const VERSION: &str = "zpu assembler version 0.1";
-const HELP: &str = 
-r#"usage <Options> <files>
+const HELP: &str = r#"usage <Options> <files>
 Options:
  --help     # prints this message
  --version  # prints version info
