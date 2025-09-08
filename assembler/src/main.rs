@@ -31,7 +31,7 @@ fn main() -> Result<()> {
     multi_lexer(lexed_tokens.clone(), files_data.clone(), files.len())?;
 
     let bytecode = multi_cltbts(lexed_tokens.clone())?;
-    multi_file_write(bytecode, files.clone())?;
+    multi_file_write(&bytecode, files.clone())?;
     Ok(())
 }
 

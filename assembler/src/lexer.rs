@@ -1,4 +1,5 @@
 #![allow(unused)]
+use stdlib::opcode::*;
 
 pub struct ZsmTokens {
     pub split_word: Vec<String>,
@@ -77,27 +78,4 @@ impl ZsmTokens {
 pub enum Token<T, U> {
     Key(T),
     Value(U),
-}
-
-#[derive(PartialEq, Clone, Copy)]
-pub enum Keys {
-    Section,
-    Func,
-    Mov,
-    End,
-    Alloc,
-    Dealloc,
-    Lptr,
-    Sptr,
-    Call,
-    Jmp,
-    Jne,
-    Je,
-    Jg,
-    Jge,
-    Jng,
-    Jnge,
-    Cmp,
-    Ptr,
-    UPtr,
 }

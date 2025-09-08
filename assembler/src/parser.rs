@@ -1,18 +1,37 @@
 #![allow(non_snake_case)]
 #![allow(unused)]
 
-use crate::lexer::{Keys, Token, ZsmTokens};
+use crate::lexer::{Token, ZsmTokens};
 use std::io::{Error, ErrorKind, Result};
 use std::sync::{Arc, Mutex};
 use std::thread;
+use stdlib::opcode::*;
 
 fn ConvertLexerToBytesCvt(tokens: &ZsmTokens) -> Result<Vec<u8>> {
     let mut sections: [ZsmTokens; 3] = [ZsmTokens::new(), ZsmTokens::new(), ZsmTokens::new()]; // global, data, code
+    let mut bytecode: Vec<u8> = Vec::new();
+    bytecode.reserve(100);
+
     split_sections(tokens, &mut sections)?;
 
-    // convert Keys to binary values
+    // convert tokens to bytecode
+    for j in 0..3 {
+        for i in 0..sections[j].tokens.len() {
+            match &sections[j].tokens[i] {
+                Token::Key(ky) => bytecode.push(*ky as u8),
+                Token::Value(vl) => {
+                    let str_bytes = vl.as_bytes();
+                    bytecode.push(KEY_STR_BEGIN);
+                    bytecode.push(str_bytes.len() as u8);
+                    for i in 0..str_bytes.len() {
+                        bytecode.push(str_bytes[i]);
+                    }
+                }
+            }
+        }
+    }
 
-    Ok(Vec::new())
+    Ok(bytecode)
 }
 
 pub fn multi_cltbts(tokens: Arc<Mutex<Vec<ZsmTokens>>>) -> Result<Vec<Vec<u8>>> {
@@ -44,7 +63,8 @@ pub fn multi_cltbts(tokens: Arc<Mutex<Vec<ZsmTokens>>>) -> Result<Vec<Vec<u8>>> 
         });
     });
 
-    Ok(Vec::new())
+    let btcodes = bytecodes.lock().unwrap().clone();
+    Ok(btcodes)
 }
 
 fn split_sections(tokens: &ZsmTokens, sections: &mut [ZsmTokens; 3]) -> Result<()> {
