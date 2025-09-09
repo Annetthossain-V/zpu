@@ -1,11 +1,12 @@
 section text
-func main
-mov r1, 0
-alloca gstr int 10
-
-end func
+  func main
+    mov r0, 10
+    mov r1, 30
+    mov r2, 40
+  func end
 
 section end
-section data
 
+section data
+msg = "Hello, World"
 section end
